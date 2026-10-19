@@ -1,0 +1,62 @@
+{
+  "title": "Giám sát Hệ thống CRM - Nguyễn Trần Việt Anh (DTC245200379)",
+  "uid": "crm-dtc245200379",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "1. Trạng thái Hoạt động các Dịch vụ (Targets UP = 1)",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus_ds" },
+      "targets": [
+        { "expr": "up", "legendFormat": "{{job}} ({{instance}})" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "2. Nginx Reverse Proxy - Tổng số HTTP Requests",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus_ds" },
+      "targets": [
+        { "expr": "nginx_http_requests_total", "legendFormat": "Tổng HTTP Requests qua Nginx" },
+        { "expr": "nginx_connections_active", "legendFormat": "Kết nối Nginx đang hoạt động" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "3. Ứng dụng Web CRM (Flask) - Lượt truy cập theo HTTP Status",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus_ds" },
+      "targets": [
+        { "expr": "flask_http_request_total", "legendFormat": "{{method}} {{status}}" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "4. Cơ sở dữ liệu PostgreSQL - Số kết nối & Dữ liệu truy xuất (crm_db)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
+      "datasource": { "type": "prometheus", "uid": "prometheus_ds" },
+      "targets": [
+        { "expr": "pg_stat_database_numbackends{datname=\"crm_db\"}", "legendFormat": "Kết nối DB (crm_db)" },
+        { "expr": "rate(pg_stat_database_tup_returned{datname=\"crm_db\"}[1m])", "legendFormat": "Số dòng đọc/giây" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "5. Giám sát Docker Containers (Bộ nhớ RAM sử dụng - cAdvisor)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
+      "datasource": { "type": "prometheus", "uid": "prometheus_ds" },
+      "targets": [
+        { "expr": "container_memory_working_set_bytes / 1024 / 1024", "legendFormat": "{{name}} {{id}} (MB)" }
+      ]
+    }
+  ]
+}
