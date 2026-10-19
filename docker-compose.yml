@@ -1,0 +1,69 @@
+services:
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: crm_postgres
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - backend_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d crm_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: crm_pgadmin
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    networks:
+      - backend_net
+
+  crm_web:
+    build: ./app
+    container_name: crm_web
+    restart: unless-stopped
+    environment:
+      - DB_HOST=postgres_db
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${APP_DB_USER}
+      - DB_PASSWORD=${APP_DB_PASSWORD}
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    networks:
+      - frontend_net
+      - backend_net
+
+  nginx_proxy:
+    image: nginx:1.25-alpine
+    container_name: crm_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - crm_web
+    networks:
+      - frontend_net
+
+networks:
+  frontend_net:
+    driver: bridge
+  backend_net:
+    driver: bridge
+
+volumes:
+  pgdata:

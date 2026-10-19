@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ thống CRM - DTC245200379</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-primary shadow-sm mb-4">
+    <div class="container">
+        <span class="navbar-brand fw-bold">HỆ THỐNG CRM CHĂM SÓC KHÁCH HÀNG (ĐỀ 4)</span>
+        <span class="text-white">SV: Nguyễn Trần Việt Anh | MSV: DTC245200379</span>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    <!-- Thống kê tổng quan -->
+    <div class="row mb-4 text-center">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 bg-white">
+                <h6 class="text-muted">Tổng Khách Hàng</h6>
+                <h2 class="text-primary fw-bold">{{ customers|length }}</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 bg-white">
+                <h6 class="text-muted">Người Liên Hệ</h6>
+                <h2 class="text-success fw-bold">{{ contacts|length }}</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 bg-white">
+                <h6 class="text-muted">Lịch Sử Tương Tác</h6>
+                <h2 class="text-warning fw-bold">{{ interactions|length }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. Quản lý khách hàng -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white fw-bold text-primary">1. Quản lý Khách hàng (Customers)</div>
+        <div class="card-body">
+            <form action="/add_customer" method="POST" class="row g-2 mb-3">
+                <div class="col-md-3"><input type="text" name="full_name" class="form-control" placeholder="Họ tên khách hàng" required></div>
+                <div class="col-md-2"><input type="email" name="email" class="form-control" placeholder="Email" required></div>
+                <div class="col-md-2"><input type="text" name="phone" class="form-control" placeholder="Số điện thoại" required></div>
+                <div class="col-md-2"><input type="text" name="company" class="form-control" placeholder="Công ty/Đơn vị"></div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="Tiềm năng">Tiềm năng</option>
+                        <option value="Đang hợp tác">Đang hợp tác</option>
+                        <option value="Mới đăng ký">Mới đăng ký</option>
+                    </select>
+                </div>
+                <div class="col-md-1"><button type="submit" class="btn btn-primary w-100">Thêm</button></div>
+            </form>
+            <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>ID</th><th>Họ tên</th><th>Email</th><th>SĐT</th><th>Công ty</th><th>Trạng thái</th></tr>
+                </thead>
+                <tbody>
+                    {% for c in customers %}
+                    <tr>
+                        <td>#{{ c.id }}</td>
+                        <td class="fw-semibold">{{ c.full_name }}</td>
+                        <td>{{ c.email }}</td>
+                        <td>{{ c.phone }}</td>
+                        <td>{{ c.company }}</td>
+                        <td><span class="badge bg-info text-dark">{{ c.status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 2. Quản lý liên hệ -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white fw-bold text-success">2. Quản lý Người Liên hệ (Contacts)</div>
+        <div class="card-body">
+            <form action="/add_contact" method="POST" class="row g-2 mb-3">
+                <div class="col-md-3">
+                    <select name="customer_id" class="form-select" required>
+                        <option value="">-- Chọn Khách hàng --</option>
+                        {% for c in customers %}
+                        <option value="{{ c.id }}">{{ c.full_name }} ({{ c.company }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2"><input type="text" name="contact_name" class="form-control" placeholder="Tên người liên hệ" required></div>
+                <div class="col-md-2"><input type="text" name="position" class="form-control" placeholder="Chức vụ"></div>
+                <div class="col-md-2"><input type="text" name="phone" class="form-control" placeholder="SĐT" required></div>
+                <div class="col-md-2"><input type="email" name="email" class="form-control" placeholder="Email"></div>
+                <div class="col-md-1"><button type="submit" class="btn btn-success w-100">Thêm</button></div>
+            </form>
+            <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>ID</th><th>Thuộc Khách hàng</th><th>Người liên hệ</th><th>Chức vụ</th><th>SĐT</th><th>Email</th></tr>
+                </thead>
+                <tbody>
+                    {% for ct in contacts %}
+                    <tr>
+                        <td>#{{ ct.id }}</td>
+                        <td>{{ ct.customer_name }}</td>
+                        <td class="fw-semibold">{{ ct.contact_name }}</td>
+                        <td>{{ ct.position }}</td>
+                        <td>{{ ct.phone }}</td>
+                        <td>{{ ct.email }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. Lịch sử tương tác -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white fw-bold text-warning">3. Lịch sử Tương tác & Chăm sóc (Interactions)</div>
+        <div class="card-body">
+            <form action="/add_interaction" method="POST" class="row g-2 mb-3">
+                <div class="col-md-3">
+                    <select name="customer_id" class="form-select" required>
+                        <option value="">-- Chọn Khách hàng --</option>
+                        {% for c in customers %}
+                        <option value="{{ c.id }}">{{ c.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="channel" class="form-select">
+                        <option value="Gọi điện">Gọi điện</option>
+                        <option value="Email">Email</option>
+                        <option value="Gặp trực tiếp">Gặp trực tiếp</option>
+                        <option value="Zalo / Chat">Zalo / Chat</option>
+                    </select>
+                </div>
+                <div class="col-md-6"><input type="text" name="summary" class="form-control" placeholder="Nội dung trao đổi / chăm sóc khách hàng..." required></div>
+                <div class="col-md-1"><button type="submit" class="btn btn-warning w-100">Lưu</button></div>
+            </form>
+            <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>Thời gian</th><th>Khách hàng</th><th>Kênh</th><th>Nội dung tương tác</th><th>Nhân viên phụ trách</th></tr>
+                </thead>
+                <tbody>
+                    {% for i in interactions %}
+                    <tr>
+                        <td>{{ i.interaction_date }}</td>
+                        <td class="fw-semibold">{{ i.customer_name }}</td>
+                        <td><span class="badge bg-secondary">{{ i.channel }}</span></td>
+                        <td>{{ i.summary }}</td>
+                        <td>{{ i.staff_name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
