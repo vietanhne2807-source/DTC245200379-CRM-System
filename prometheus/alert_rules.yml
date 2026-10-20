@@ -1,0 +1,22 @@
+groups:
+  - name: CRM_Security_Incident_Alerts
+    rules:
+      - alert: PhatHienTanCongRaQuetWebCRM
+        expr: increase(flask_http_request_total{status=~"4..|5.."}[5m]) > 3
+        for: 0m
+        labels:
+          severity: critical
+          student: DTC245200379
+        annotations:
+          summary: "CANH BAO AN TOAN THONG TIN: Phat hien ra quet lo hong / truy cap trai phep vao Web CRM!"
+          description: "He thong ghi nhan nhieu request loi HTTP 4xx/5xx bat thuong trong 5 phut qua. Can truy vet log tren Loki ngay!"
+
+      - alert: LuuLuongTruyCapNginxBatThuong
+        expr: increase(nginx_http_requests_total[5m]) > 8
+        for: 0m
+        labels:
+          severity: warning
+          student: DTC245200379
+        annotations:
+          summary: "CANH BAO: Luu luong request qua Nginx Reverse Proxy tang dot bien"
+          description: "Phat hien dau hieu cong cu quet tu dong (Scanner/Brute-force) qua cong HTTPS 443."
